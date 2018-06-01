@@ -314,7 +314,13 @@ class App extends React.Component {
             background: "#2d3e4f"
           }}
         >
-          <div style={{ padding: "0px 8px" }}>
+          <div
+            style={{
+              padding: "0px 8px",
+              overflow: "scroll",
+              maxHeight: "100vh"
+            }}
+          >
             <JSONTree
               data={this.state.selectedRow}
               invertTheme={false}
