@@ -1,0 +1,27 @@
+{
+  "name": "simple-logviewer",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "gh-pages": "^1.1.0",
+    "lodash": "4.17.10",
+    "moment": "2.22.1",
+    "re-resizable": "^4.4.8",
+    "react": "16.3.2",
+    "react-dom": "16.3.2",
+    "react-json-tree": "^0.11.0",
+    "react-scripts": "1.1.4",
+    "react-tiny-virtual-list": "^2.1.4",
+    "react-virtualized": "^9.19.1",
+    "styled-components": "3.3.0"
+  },
+  "homepage": "http://jesusrmoreno.github.io/simple-logviewer",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  }
+}
