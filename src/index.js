@@ -125,7 +125,6 @@ const parseText = _.memoize(text => {
     buildTime,
     logUploadPending
   } = rawLog;
-  console.log(rawLog);
   return {
     log,
     types,
@@ -215,8 +214,8 @@ const memGraphHeight = 200;
 const memGraphWidth = 400;
 
 const RowTypes = styled.div`
+  flex: 1;
   overflow-y: scroll;
-  height: calc(100vh - ${memGraphHeight}px);
   border-bottom: 1px solid #ebebeb;
 `;
 
@@ -225,9 +224,6 @@ class TypeSelector extends React.Component {
     const { types } = this.props;
     const headers = Object.keys(types).sort();
 
-    /**
-     * TODO: Add drilldown into specific types
-     */
     return (
       <RowTypes>
         <Header>Log Types</Header>
@@ -254,6 +250,15 @@ const TypeGroup = styled.div`
   color: ${props => (props.selected ? "#444444" : "rgba(0, 0, 0, .27)")};
 `;
 
+const FullHeightPanel = styled.div`
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: ${props => props.width}px;
+  max-width: ${props => props.width}px;
+  border-right: 1px solid #ebebeb;
+`;
+
 class App extends React.Component {
   state = {
     text: null,
@@ -277,7 +282,7 @@ class App extends React.Component {
       selectedGroups: {
         ...this.state.selectedGroups,
         [key]: !this.isSelected(key)
-      },
+      }
     }));
   };
 
@@ -299,7 +304,7 @@ class App extends React.Component {
 
     return (
       <div style={styles}>
-        <div style={{ width: memGraphWidth, borderRight: "1px solid #ebebeb" }}>
+        <FullHeightPanel width={memGraphWidth}>
           <TypeSelector
             types={types}
             isSelected={this.isSelected}
@@ -321,8 +326,8 @@ class App extends React.Component {
             enableGridY={false}
             curve="natural"
           />
-        </div>
-        <div style={{ flex: 1 }}>
+        </FullHeightPanel>
+        <FullHeightPanel style={{flex: 1}}>
           <FileSelector onRead={text => this.setState({ text })} />
           <AutoSizer>
             {({ height, width }) => (
@@ -357,7 +362,7 @@ class App extends React.Component {
               />
             )}
           </AutoSizer>
-        </div>
+        </FullHeightPanel>
         <Resizable
           defaultSize={{
             width: 400
