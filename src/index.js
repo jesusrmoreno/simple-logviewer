@@ -328,6 +328,7 @@ class App extends React.Component {
               data={this.state.selectedRow}
               invertTheme={false}
               theme={theme}
+              shouldExpandNode={() => true}
             />
           </div>
         </Resizable>
