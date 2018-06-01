@@ -449,8 +449,8 @@ const Row = styled.div`
 
 const LogRow = ({ log, style, selected, ...props }) => {
   const time = log.time
-    ? createMoment(log.time).format("hh:mm:ss")
-    : createMoment(log.startTime).format("hh:mm:ss");
+    ? createMoment(log.time).format("hh:mm:ss A")
+    : createMoment(log.startTime).format("hh:mm:ss A");
   const type = log.action ? log.action.type : getRowType(log);
 
   const isMemory = type === "memory";
