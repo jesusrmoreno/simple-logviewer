@@ -86,7 +86,7 @@ class FileSelector extends React.Component {
 
 const getRowType = row => {
   if (row.action) {
-    return row.action.type;
+    return row.action.type.split("/")[0];
   }
   if (row.data && row.data.jsHeapSizeLimit) {
     return "memory";
