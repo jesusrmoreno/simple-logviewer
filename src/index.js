@@ -108,9 +108,40 @@ const parseText = _.memoize(text => {
     type => type.split("/")[0]
   );
 
+  const {
+    cabSessionID,
+    cabLoginID,
+    loginName,
+    database,
+    userAgent,
+    appUrl,
+    sessionStartTime,
+    status,
+    statusTime,
+    numErrors,
+    buildCommitHash,
+    buildTime,
+    logUploadPending
+  } = rawLog;
+  console.log(rawLog);
   return {
     log,
-    types
+    types,
+    meta: {
+      cabSessionID,
+      cabLoginID,
+      loginName,
+      database,
+      userAgent,
+      appUrl,
+      sessionStartTime,
+      status,
+      statusTime,
+      numErrors,
+      buildCommitHash,
+      buildTime,
+      logUploadPending
+    }
   };
 });
 
@@ -254,7 +285,7 @@ class App extends React.Component {
   };
 
   render() {
-    const { log, types } = parseText(this.state.text);
+    const { log, types, meta } = parseText(this.state.text);
     const filteredLog = log.filter(l => this.isSelected(getRowType(l)));
     return (
       <div style={styles}>
@@ -314,7 +345,78 @@ class App extends React.Component {
             topLeft: false
           }}
           style={{
-            background: "#2d3e4f"
+            backgroundColor: "#1d1f21"
+            // background: "#2d3e4f"
+          }}
+        >
+          <div
+            style={{
+              //   padding: "0px 8px",
+              overflow: "scroll",
+              height: "100vh",
+              display: "flex",
+              flexDirection: "column"
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "#2d3e4f"
+              }}
+            >
+              <JSONTree
+                data={this.state.selectedRow}
+                invertTheme={false}
+                theme={theme}
+                hideRoot
+                shouldExpandNode={() => true}
+              />
+            </div>
+            <div style={{ background: "#1d1f21", flex: 1 }}>
+              <JSONTree
+                data={meta}
+                invertTheme={false}
+                theme={{
+                  scheme: "tomorrow",
+                  author: "chris kempson (http://chriskempson.com)",
+                  base00: "#1d1f21",
+                  base01: "#282a2e",
+                  base02: "#373b41",
+                  base03: "#969896",
+                  base04: "#b4b7b4",
+                  base05: "#c5c8c6",
+                  base06: "#e0e0e0",
+                  base07: "#ffffff",
+                  base08: "#cc6666",
+                  base09: "#de935f",
+                  base0A: "#f0c674",
+                  base0B: "#b5bd68",
+                  base0C: "#8abeb7",
+                  base0D: "#81a2be",
+                  base0E: "#b294bb",
+                  base0F: "#a3685a"
+                }}
+                hideRoot
+                shouldExpandNode={() => true}
+              />
+            </div>
+          </div>
+        </Resizable>
+        {/* <Resizable
+          defaultSize={{
+            width: 400
+          }}
+          enable={{
+            top: false,
+            right: false,
+            bottom: false,
+            left: true,
+            topRight: false,
+            bottomRight: false,
+            bottomLeft: false,
+            topLeft: false
+          }}
+          style={{
+            background: "#1d1f21"
           }}
         >
           <div
@@ -323,15 +425,8 @@ class App extends React.Component {
               overflow: "scroll",
               maxHeight: "100vh"
             }}
-          >
-            <JSONTree
-              data={this.state.selectedRow}
-              invertTheme={false}
-              theme={theme}
-              shouldExpandNode={() => true}
-            />
-          </div>
-        </Resizable>
+          />
+        </Resizable> */}
       </div>
     );
   }
