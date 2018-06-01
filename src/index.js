@@ -88,8 +88,14 @@ const getRowType = row => {
   if (row.action) {
     return row.action.type.split("/")[0];
   }
-  if (row.data && row.data.jsHeapSizeLimit) {
-    return "memory";
+
+  if (row.data) {
+    if (row.data.jsHeapSizeLimit) {
+      return "memory";
+    }
+  }
+  if (row.level) {
+    return row.level;
   }
   return row.type;
 };
@@ -221,15 +227,19 @@ class App extends React.Component {
     text: null,
     page: 0,
     selectedRow: {},
-    selectedGroups: {}
+    selectedGroups: {},
+    hasSelected: false
   };
 
   isSelected = key => {
     // Default to selected
+    if (!this.state.hasSelected) {
+      return true;
+    }
     if (typeof this.state.selectedGroups[key] === "boolean") {
       return this.state.selectedGroups[key];
     } else {
-      return true;
+      return false;
     }
   };
 
@@ -237,17 +247,10 @@ class App extends React.Component {
     this.setState(state => ({
       selectedGroups: {
         ...this.state.selectedGroups,
-        [key]: !this.isSelected(key)
-      }
+        [key]: state.hasSelected ? !this.isSelected(key) : true
+      },
+      hasSelected: true
     }));
-  };
-
-  increasePage = max => {
-    this.setState(state => ({ page: state.page < max ? state.page + 1 : max }));
-  };
-
-  decreasePage = () => {
-    this.setState(state => ({ page: state.page !== 0 ? state.page - 1 : 0 }));
   };
 
   render() {
@@ -352,7 +355,9 @@ const LogRow = ({ log, style, selected, ...props }) => {
   const time = log.time
     ? createMoment(log.time).format("hh:mm:ss")
     : createMoment(log.startTime).format("hh:mm:ss");
+  const type = log.action ? log.action.type : getRowType(log);
 
+  const isMemory = type === "memory";
   return (
     <Row
       style={{
@@ -363,7 +368,10 @@ const LogRow = ({ log, style, selected, ...props }) => {
       {...props}
     >
       <div>{time}</div>
-      <div>{log.action ? log.action.type : log.type}</div>
+      <div>{type}</div>
+      {isMemory && <div>{log.data.jsHeapSizeLimit}</div>}
+      {isMemory && <div>{log.data.totalJSHeapSize}</div>}
+      {isMemory && <div>{log.data.usedJSHeapSize}</div>}
     </Row>
   );
 };
