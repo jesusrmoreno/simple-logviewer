@@ -2,12 +2,13 @@ import React from "react";
 import { render } from "react-dom";
 import styled from "styled-components";
 import _ from "lodash";
-import moment from "moment";
+import moment, { max } from "moment";
 import "react-virtualized/styles.css";
 import List from "react-virtualized/dist/commonjs/List";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import JSONTree from "react-json-tree";
 import Resizable from "re-resizable";
+import { Line } from "@nivo/line";
 function createMoment(time) {
   return moment(time.replace("@d@ ", "").replace("Z #d#", ""));
 }
@@ -209,14 +210,13 @@ const Type = styled.div`
   border-bottom: 1px solid #ebebeb;
 `;
 
+const memGraphHeight = 200;
+const memGraphWidth = 400;
+
 const RowTypes = styled.div`
-  /* padding-top: 32px; */
   overflow-y: scroll;
-  max-width: 300px;
-  height: 100vh;
-  min-width: 300px;
-  border-right: 1px solid #ebebeb;
-  /* background-color: #ebebeb; */
+  height: calc(100vh - ${memGraphHeight}px);
+  border-bottom: 1px solid #ebebeb;
 `;
 
 class TypeSelector extends React.Component {
@@ -287,13 +287,44 @@ class App extends React.Component {
   render() {
     const { log, types, meta } = parseText(this.state.text);
     const filteredLog = log.filter(l => this.isSelected(getRowType(l)));
+
+    const memoryLogs = log.filter(l => getRowType(l) === "memory").map(l => ({
+      ...l.data,
+      time: createMoment(l.time),
+      x: createMoment(l.time)
+        .unix()
+        .toString(),
+      y: Math.floor(l.data.totalJSHeapSize / l.data.jsHeapSizeLimit * 100),
+      id: l.id.toString()
+    }));
+    const maxY = (_.maxBy(memoryLogs, m => m.y) || { y: 10 }).y;
+    const minY = (_.minBy(memoryLogs, m => m.y) || { y: 0 }).y;
+
     return (
       <div style={styles}>
-        <TypeSelector
-          types={types}
-          isSelected={this.isSelected}
-          toggleSelection={this.toggleSelection}
-        />
+        <div style={{ width: memGraphWidth, borderRight: "1px solid #ebebeb" }}>
+          <TypeSelector
+            types={types}
+            isSelected={this.isSelected}
+            toggleSelection={this.toggleSelection}
+          />
+          <Line
+            data={[
+              {
+                id: "totalJSHeapSize/jsHeapSizeLimit",
+                data: memoryLogs
+              }
+            ]}
+            animate={false}
+            minY={minY - 5}
+            maxY={maxY + 5}
+            height={memGraphHeight}
+            width={memGraphWidth}
+            enableGridX={false}
+            enableGridY={false}
+            curve="natural"
+          />
+        </div>
         <div style={{ flex: 1 }}>
           <FileSelector onRead={text => this.setState({ text })} />
           <AutoSizer>
@@ -346,12 +377,10 @@ class App extends React.Component {
           }}
           style={{
             backgroundColor: "#1d1f21"
-            // background: "#2d3e4f"
           }}
         >
           <div
             style={{
-              //   padding: "0px 8px",
               overflow: "scroll",
               height: "100vh",
               display: "flex",
@@ -401,32 +430,6 @@ class App extends React.Component {
             </div>
           </div>
         </Resizable>
-        {/* <Resizable
-          defaultSize={{
-            width: 400
-          }}
-          enable={{
-            top: false,
-            right: false,
-            bottom: false,
-            left: true,
-            topRight: false,
-            bottomRight: false,
-            bottomLeft: false,
-            topLeft: false
-          }}
-          style={{
-            background: "#1d1f21"
-          }}
-        >
-          <div
-            style={{
-              padding: "0px 8px",
-              overflow: "scroll",
-              maxHeight: "100vh"
-            }}
-          />
-        </Resizable> */}
       </div>
     );
   }

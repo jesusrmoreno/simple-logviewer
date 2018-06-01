@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@nivo/line": "^0.40.0",
     "gh-pages": "^1.1.0",
     "lodash": "4.17.10",
     "moment": "2.22.1",
