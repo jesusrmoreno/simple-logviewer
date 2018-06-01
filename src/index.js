@@ -2,13 +2,14 @@ import React from "react";
 import { render } from "react-dom";
 import styled from "styled-components";
 import _ from "lodash";
-import moment, { max } from "moment";
+import moment from "moment";
 import "react-virtualized/styles.css";
 import List from "react-virtualized/dist/commonjs/List";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import JSONTree from "react-json-tree";
 import Resizable from "re-resizable";
 import { Line } from "@nivo/line";
+
 function createMoment(time) {
   return moment(time.replace("@d@ ", "").replace("Z #d#", ""));
 }
@@ -264,13 +265,10 @@ class App extends React.Component {
 
   isSelected = key => {
     // Default to selected
-    if (!this.state.hasSelected) {
-      return true;
-    }
     if (typeof this.state.selectedGroups[key] === "boolean") {
       return this.state.selectedGroups[key];
     } else {
-      return false;
+      return true;
     }
   };
 
@@ -278,9 +276,8 @@ class App extends React.Component {
     this.setState(state => ({
       selectedGroups: {
         ...this.state.selectedGroups,
-        [key]: state.hasSelected ? !this.isSelected(key) : true
+        [key]: !this.isSelected(key)
       },
-      hasSelected: true
     }));
   };
 
