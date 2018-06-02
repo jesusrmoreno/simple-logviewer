@@ -62,26 +62,45 @@ const RowTypes = styled.div`
   border-bottom: 1px solid #ebebeb;
 `;
 
-class TypeSelector extends React.Component {
-  render() {
-    const { types } = this.props;
-    const headers = Object.keys(types).sort();
+const TypeSelector = inject("store")(
+  observer(
+    class Types extends React.Component {
+      toggleSelection = key => {
+        const { store } = this.props;
+        const currentSelected = store.selectedGroups;
+        store.selectedGroups = {
+          ...currentSelected,
+          [key]: !this.isSelected(currentSelected, key)
+        };
+      };
 
-    return (
-      <RowTypes>
-        {headers.map(header => (
-          <TypeGroup
-            selected={this.props.isSelected(header)}
-            key={header}
-            onClick={() => this.props.toggleSelection(header)}
-          >
-            {header}
-          </TypeGroup>
-        ))}
-      </RowTypes>
-    );
-  }
-}
+      isSelected = (selectedGroups, key) =>
+        typeof selectedGroups[key] === "boolean" ? selectedGroups[key] : true;
+
+      render() {
+        const { types, store } = this.props;
+        const { selectedGroups } = store;
+        const headers = Object.keys(types).sort();
+        return (
+          <RowTypes>
+            {headers.map(header => {
+              const selected = this.isSelected(selectedGroups, header);
+              return (
+                <TypeGroup
+                  selected={selected}
+                  key={header}
+                  onClick={() => this.toggleSelection(header)}
+                >
+                  {header}
+                </TypeGroup>
+              );
+            })}
+          </RowTypes>
+        );
+      }
+    }
+  )
+);
 
 const TypeGroup = styled.div`
   height: 32;
@@ -146,23 +165,6 @@ const LogList = inject("store")(
 const App = inject("store")(
   observer(
     class Main extends React.Component {
-      isSelected = key => {
-        const { store } = this.props;
-        const currentSelected = store.selectedGroups;
-        return typeof currentSelected[key] === "boolean"
-          ? currentSelected[key]
-          : true;
-      };
-
-      toggleSelection = key => {
-        const { store } = this.props;
-        const currentSelected = store.selectedGroups;
-        store.selectedGroups = {
-          ...currentSelected,
-          [key]: !this.isSelected(key)
-        };
-      };
-
       render() {
         const { store } = this.props;
         const { memoryLogs, parsedLog } = store;
@@ -185,11 +187,7 @@ const App = inject("store")(
                   onChange={e => (store.searchTerm = e.target.value)}
                 />
               </Header>
-              <TypeSelector
-                types={types}
-                isSelected={this.isSelected}
-                toggleSelection={this.toggleSelection}
-              />
+              <TypeSelector types={types} />
               <Header>
                 <Text type="meta" style={{ paddingRight: 4 }}>
                   Memory Usage: totalJSHeapSize / jsHeapSizeLimit
