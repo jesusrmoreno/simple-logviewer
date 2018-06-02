@@ -53,14 +53,19 @@ class UI {
   searchTerm = "";
   text = "";
   selectedRow = {};
-  selectedGroups = {};
+  selectedGroups = {
+    ajax: false,
+    time: false
+  };
 
   get parsedLog() {
     return parseText(this.text);
   }
 
   get selectedRowJson() {
-    return toJS(this.selectedRow);
+    const res = toJS(this.selectedRow);
+    console.log(res);
+    return res;
   }
 
   get memoryLogs() {
@@ -81,9 +86,8 @@ class UI {
     const selectedGroups = this.selectedGroups;
     return this.parsedLog.log.filter(l => {
       if (searchTerm !== "") {
-        return getRowType(l)
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
+        const type = l.action ? l.action.type : getRowType(l);
+        return type.toLowerCase().includes(searchTerm.toLowerCase());
       } else {
         return typeof selectedGroups[getRowType(l)] === "boolean"
           ? selectedGroups[getRowType(l)]

@@ -3,6 +3,7 @@ import Text from "./Typography";
 import styled from "styled-components";
 import { getRowType, createMoment } from "../util";
 import { observer, inject } from "mobx-react";
+import get from "lodash/get";
 
 const Row = styled.div`
   height: 32px;
@@ -46,7 +47,7 @@ class LogRow extends React.PureComponent {
     const time = log.time
       ? formatTimeStamp(createMoment(log.time))
       : formatTimeStamp(createMoment(log.startTime));
-    const type = getRowType(log);
+    const type = log.action ? log.action.type : getRowType(log);
     return (
       <Row {...props} style={style} selected={selected}>
         <Text type="meta" light={selected}>
@@ -73,6 +74,27 @@ class LogRow extends React.PureComponent {
           {() => (
             <Text type="meta" light={selected}>
               {log.data.usedJSHeapSize}
+            </Text>
+          )}
+        </ShowWhen>
+        <ShowWhen type={type} condition="event">
+          {() => (
+            <Text type="meta" light={selected}>
+              {log.eventType}
+            </Text>
+          )}
+        </ShowWhen>
+        <ShowWhen type={type} condition="log/ADD_LOG">
+          {() => (
+            <Text type="meta" light={selected}>
+              {get(log, "action.payload.logEntry.description", "")}
+            </Text>
+          )}
+        </ShowWhen>
+        <ShowWhen type={type} condition="log">
+          {() => (
+            <Text type="meta" light={selected}>
+              {get(log, "data", []).join(' - ')}
             </Text>
           )}
         </ShowWhen>
