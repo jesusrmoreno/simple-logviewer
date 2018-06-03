@@ -10,13 +10,14 @@ import LogTypes from "./components/LogTypes";
 import FileSelector from "./components/FileUpload";
 import ObjectInspector from "./components/ObjectInspector";
 import MemoryGraph, { memGraphWidth } from "./components/MemoryGraph";
-
 import { Provider, inject, observer } from "mobx-react";
-
 import appState from "./store";
+import { Helmet } from "react-helmet";
+import worker from "./util/worker";
+
+worker.postMessage({ type: "helloworld" });
 
 const styles = {
-  fontFamily: "sans-serif",
   overflow: "hidden",
   height: "100vh",
   display: "flex"
@@ -86,10 +87,12 @@ const App = inject("store")(
     class Main extends React.Component {
       render() {
         const { store } = this.props;
-        const { searchTerm } = store;
-
+        const { searchTerm, file } = store;
         return (
           <div style={styles}>
+            <Helmet>
+              <title>Log Viewer {file.name}</title>
+            </Helmet>
             <FullHeightPanel width={memGraphWidth}>
               <SectionHeader>
                 <Text type="meta">Log Types</Text>

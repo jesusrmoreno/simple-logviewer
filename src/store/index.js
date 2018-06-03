@@ -1,15 +1,13 @@
 import { decorate, observable, computed, toJS } from "mobx";
 import _ from "lodash";
 import { getRowType, createMoment } from "../util";
+import crossfilter from "crossfilter2";
 
 const parseText = text => {
   try {
     const rawLog = JSON.parse(text) || {};
     const log = rawLog.log || [];
-    const types = _.groupBy(
-      _.uniq(log.map(getRowType)),
-      type => type.split("/")[0]
-    );
+    const types = _.groupBy(_.uniq(log.map(getRowType)), type => type);
     const {
       cabSessionID,
       cabLoginID,
@@ -52,11 +50,15 @@ const parseText = text => {
 class UI {
   searchTerm = "";
   text = "";
+  file = {
+    name: ""
+  };
   selectedRow = {};
   selectedGroups = {
     ajax: false,
     time: false
   };
+  parsing = false;
 
   get parsedLog() {
     return parseText(this.text);
@@ -64,7 +66,6 @@ class UI {
 
   get selectedRowJson() {
     const res = toJS(this.selectedRow);
-    console.log(res);
     return res;
   }
 
@@ -81,19 +82,37 @@ class UI {
     }));
   }
 
+  get crossfilter() {
+    return crossfilter(this.parsedLog.log);
+  }
+
+  get actionDimension() {
+    return this.crossfilter.dimension(l => {
+      // We need these to be sorted by time but sorting after filtering is
+      // mad slow.
+      // Luckily crossfilter sorts in natural order by key (in this case type)
+      // so we can just prefix the type with the unix timestamp
+      const timestamp = createMoment(l.time ? l.time : l.startTime).unix();
+      const type = `${timestamp}+${l.action ? l.action.type : getRowType(l)}`;
+      return type;
+    });
+  }
+
   get filteredLog() {
     const searchTerm = this.searchTerm;
     const selectedGroups = this.selectedGroups;
-    return this.parsedLog.log.filter(l => {
+    this.actionDimension.filter(type => {
       if (searchTerm !== "") {
-        const type = l.action ? l.action.type : getRowType(l);
         return type.toLowerCase().includes(searchTerm.toLowerCase());
       } else {
-        return typeof selectedGroups[getRowType(l)] === "boolean"
-          ? selectedGroups[getRowType(l)]
+        const baseType = type.split("+")[1];
+        return typeof selectedGroups[baseType] === "boolean"
+          ? selectedGroups[baseType]
           : true;
       }
     });
+
+    return this.actionDimension.bottom(Infinity);
   }
 }
 
@@ -104,7 +123,11 @@ const UIStore = decorate(UI, {
   selectedGroups: observable,
   parsedLog: computed,
   filteredLog: computed,
-  selectedRowJson: computed
+  selectedRowJson: computed,
+  file: observable,
+  crossfilter: computed,
+  actionDimension: computed,
+  parsing: observable
 });
 
 export default new UIStore();

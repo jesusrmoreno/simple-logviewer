@@ -98,6 +98,13 @@ class LogRow extends React.PureComponent {
             </Text>
           )}
         </ShowWhen>
+        <ShowWhen type={type} condition="@@router/LOCATION_CHANGE">
+          {() => (
+            <Text type="meta" light={selected}>
+              {get(log, "action.payload.pathname", "")}
+            </Text>
+          )}
+        </ShowWhen>
       </Row>
     );
   }

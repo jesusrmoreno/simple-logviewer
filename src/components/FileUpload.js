@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { observer, inject } from "mobx-react";
+import worker from "../util/worker";
 
 const FileUpload = styled.button`
   border: 0;
@@ -19,6 +20,7 @@ const FileUpload = styled.button`
   border-bottom: 1px solid #ebebeb;
   &:hover {
     background-color: #1a80fb;
+    border-bottom: 1px solid #1a80fb;
     color: white;
   }
 
@@ -36,22 +38,34 @@ const ConnectedFileSelector = inject("store")(
         super(props);
         this.handleChange = this.handleChange.bind(this);
       }
-
+      componentDidMount() {
+        worker.onmessage;
+      }
       handleChange = e => {
         if (e.target.files.length) {
           const reader = new FileReader();
-          reader.readAsText(e.target.files[0]);
+          const file = e.target.files[0];
+          this.props.store.file = file;
+          this.props.store.parsing = true;
+          reader.readAsText(file);
           reader.onload = () => {
+            // worker.postMessage({ type: "parseText", payload: reader.result });
             this.props.store.text = reader.result;
+            this.props.store.parsing = false;
           };
         }
       };
 
       render() {
+        const { store } = this.props;
         return (
           <FileUpload onClick={() => this.fileInput.click()}>
             <i className="fa fa-upload fa-fw" aria-hidden="true" />
-            <span>Click to Upload Log File</span>
+            <span>
+              {store.parsing
+                ? "Reading file..."
+                : `Click to Open ${store.text !== "" ? "New" : ""} Log File`}
+            </span>
             <input
               style={{
                 width: "100%",

@@ -6,7 +6,7 @@ function createMoment(time) {
 
 const getRowType = row => {
   if (row.action) {
-    return row.action.type.split("/")[0];
+    return row.action.type;
   }
   if (row.data) {
     if (row.data.jsHeapSizeLimit) {
