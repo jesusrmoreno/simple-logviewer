@@ -36,7 +36,7 @@ const TypeSelector = inject("store")(
       turnAllOffExcept = except => {
         const { store } = this.props;
         const { parsedLog } = store;
-        const { types } = parsedLog;
+        const { types } = store;
         const keyed = keyBy(types);
         Object.keys(keyed).forEach(k => {
           keyed[k] = k === except ? true : false;

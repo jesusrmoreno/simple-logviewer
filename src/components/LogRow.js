@@ -60,42 +60,42 @@ class LogRow extends React.PureComponent {
         <Text type="meta" light={selected}>
           {type}
         </Text>
-        <ShowIf condition={isEqual(memory, "meta")}>
+        <ShowIf condition={isEqual(type, "memory")}>
           {() => (
             <Text type="meta" light={selected}>
               {log.data.jsHeapSizeLimit}
             </Text>
           )}
         </ShowIf>
-        <ShowIf type={type} condition={isEqual(memory, "meta")}>
+        <ShowIf type={type} condition={isEqual(type, "memory")}>
           {() => (
             <Text type="meta" light={selected}>
               {log.data.totalJSHeapSize}
             </Text>
           )}
         </ShowIf>
-        <ShowIf type={type} condition={isEqual(memory, "meta")}>
+        <ShowIf type={type} condition={isEqual(type, "memory")}>
           {() => (
             <Text type="meta" light={selected}>
               {log.data.usedJSHeapSize}
             </Text>
           )}
         </ShowIf>
-        <ShowIf type={type} condition={isEqual(memory, "event")}>
+        <ShowIf type={type} condition={isEqual(type, "event")}>
           {() => (
             <Text type="meta" light={selected}>
               {log.eventType}
             </Text>
           )}
         </ShowIf>
-        <ShowIf type={type} condition={isEqual(memory, "log/ADD_LOG")}>
+        <ShowIf type={type} condition={isEqual(type, "log/ADD_LOG")}>
           {() => (
             <Text type="meta" light={selected}>
               {get(log, "action.payload.logEntry.description", "")}
             </Text>
           )}
         </ShowIf>
-        <ShowIf type={type} condition={isEqual(memory, "log")}>
+        <ShowIf type={type} condition={isEqual(type, "log")}>
           {() => (
             <Text type="meta" light={selected}>
               {get(log, "data", []).join(" - ")}

@@ -2,6 +2,8 @@ import { decorate, observable, computed, toJS } from "mobx";
 import _ from "lodash";
 import { getRowType, createMoment } from "../util";
 import crossfilter from "crossfilter2";
+import groupBy from "lodash/groupBy";
+import uniq from "lodash/uniq";
 
 const parseText = text => {
   try {
@@ -77,7 +79,7 @@ class UI {
       x: createMoment(l.time)
         .unix()
         .toString(),
-      y: Math.floor(l.data.totalJSHeapSize / l.data.jsHeapSizeLimit * 100),
+      y: Math.floor((l.data.totalJSHeapSize / l.data.jsHeapSizeLimit) * 100),
       id: l.id.toString()
     }));
   }
@@ -96,6 +98,10 @@ class UI {
       const type = `${timestamp}+${l.action ? l.action.type : getRowType(l)}`;
       return type;
     });
+  }
+
+  get types() {
+    return groupBy(uniq(log.map(getRowType)), type => type);
   }
 
   get filteredLog() {
@@ -127,7 +133,8 @@ const UIStore = decorate(UI, {
   file: observable,
   crossfilter: computed,
   actionDimension: computed,
-  parsing: observable
+  parsing: observable,
+  types: computed
 });
 
 export default new UIStore();
