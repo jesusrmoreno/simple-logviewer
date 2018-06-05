@@ -101,7 +101,7 @@ class UI {
   }
 
   get types() {
-    return groupBy(uniq(log.map(getRowType)), type => type);
+    return groupBy(uniq(this.filteredLog.map(getRowType)), type => type);
   }
 
   get filteredLog() {
