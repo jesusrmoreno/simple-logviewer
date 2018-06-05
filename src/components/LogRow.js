@@ -22,10 +22,9 @@ const Row = styled.div`
   }
 `;
 
-const formatTimeStamp = time => time.format("hh:mm:ss A");
+const formatTimeStamp = time => time.format("hh:mm:ss:SSS A");
 
-const ShowWhen = ({ type, condition, children }) =>
-  type === condition ? children() : null;
+const ShowIf = ({ condition, children }) => (condition ? children() : null);
 
 // Convoluted way to prevent every single row from re-rendering when we click on one
 const IsSelected = inject("store")(
@@ -41,6 +40,7 @@ const IsSelected = inject("store")(
   )
 );
 
+const isEqual = (a, b) => a === b;
 class LogRow extends React.PureComponent {
   render() {
     const { log, style, selected, ...props } = this.props;
@@ -48,63 +48,70 @@ class LogRow extends React.PureComponent {
       ? formatTimeStamp(createMoment(log.time))
       : formatTimeStamp(createMoment(log.startTime));
     const type = log.action ? log.action.type : getRowType(log);
+
     return (
       <Row {...props} style={style} selected={selected}>
+        <Text type="meta" light={selected}>
+          {log.id}
+        </Text>
         <Text type="meta" light={selected}>
           {time}
         </Text>
         <Text type="meta" light={selected}>
           {type}
         </Text>
-        <ShowWhen type={type} condition="memory">
+        <ShowIf condition={isEqual(memory, "meta")}>
           {() => (
             <Text type="meta" light={selected}>
               {log.data.jsHeapSizeLimit}
             </Text>
           )}
-        </ShowWhen>
-        <ShowWhen type={type} condition="memory">
+        </ShowIf>
+        <ShowIf type={type} condition={isEqual(memory, "meta")}>
           {() => (
             <Text type="meta" light={selected}>
               {log.data.totalJSHeapSize}
             </Text>
           )}
-        </ShowWhen>
-        <ShowWhen type={type} condition="memory">
+        </ShowIf>
+        <ShowIf type={type} condition={isEqual(memory, "meta")}>
           {() => (
             <Text type="meta" light={selected}>
               {log.data.usedJSHeapSize}
             </Text>
           )}
-        </ShowWhen>
-        <ShowWhen type={type} condition="event">
+        </ShowIf>
+        <ShowIf type={type} condition={isEqual(memory, "event")}>
           {() => (
             <Text type="meta" light={selected}>
               {log.eventType}
             </Text>
           )}
-        </ShowWhen>
-        <ShowWhen type={type} condition="log/ADD_LOG">
+        </ShowIf>
+        <ShowIf type={type} condition={isEqual(memory, "log/ADD_LOG")}>
           {() => (
             <Text type="meta" light={selected}>
               {get(log, "action.payload.logEntry.description", "")}
             </Text>
           )}
-        </ShowWhen>
-        <ShowWhen type={type} condition="log">
+        </ShowIf>
+        <ShowIf type={type} condition={isEqual(memory, "log")}>
           {() => (
             <Text type="meta" light={selected}>
-              {get(log, "data", []).join(' - ')}
+              {get(log, "data", []).join(" - ")}
             </Text>
           )}
-        </ShowWhen>
-        <ShowWhen type={type} condition="@@router/LOCATION_CHANGE">
+        </ShowIf>
+        <ShowIf
+          type={type}
+          condition={isEqual(memory, "@@router/LOCATION_CHANGE")}
+        >
           {() => (
             <Text type="meta" light={selected}>
               {get(log, "action.payload.pathname", "")}
             </Text>
           )}
-        </ShowWhen>
+        </ShowIf>
       </Row>
     );
   }
