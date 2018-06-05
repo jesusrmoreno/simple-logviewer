@@ -104,7 +104,7 @@ class LogRow extends React.PureComponent {
         </ShowIf>
         <ShowIf
           type={type}
-          condition={isEqual(memory, "@@router/LOCATION_CHANGE")}
+          condition={isEqual(type, "@@router/LOCATION_CHANGE")}
         >
           {() => (
             <Text type="meta" light={selected}>
