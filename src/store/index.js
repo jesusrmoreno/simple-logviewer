@@ -101,7 +101,9 @@ class UI {
   }
 
   get types() {
-    return groupBy(uniq(this.filteredLog.map(getRowType)), type => type);
+    console.log('sdfasdf')
+    const log = this.filteredLog;
+    return groupBy(uniq(log.map(getRowType)), type => type);
   }
 
   get filteredLog() {

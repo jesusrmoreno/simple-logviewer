@@ -50,7 +50,7 @@ const TypeSelector = inject("store")(
       render() {
         const { store } = this.props;
         const { parsedLog } = store;
-        const { types } = parsedLog;
+        const { types } = store;
         const { selectedGroups } = store;
         const headers = Object.keys(types).sort();
         return (

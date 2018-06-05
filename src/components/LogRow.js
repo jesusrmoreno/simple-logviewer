@@ -22,7 +22,7 @@ const Row = styled.div`
   }
 `;
 
-const formatTimeStamp = time => time.format("hh:mm:ss:SSS A");
+const formatTimeStamp = time => time.format("hh:mm:ss A");
 
 const ShowIf = ({ condition, children }) => (condition ? children() : null);
 
@@ -51,9 +51,6 @@ class LogRow extends React.PureComponent {
 
     return (
       <Row {...props} style={style} selected={selected}>
-        <Text type="meta" light={selected}>
-          {log.id}
-        </Text>
         <Text type="meta" light={selected}>
           {time}
         </Text>
