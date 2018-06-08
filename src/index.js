@@ -58,7 +58,7 @@ const LogList = inject("store")(
       <AutoSizer>
         {({ height, width }) => (
           <List
-            height={height}
+            height={height - 32}
             width={width}
             rowCount={filteredLog.length}
             rowHeight={32}

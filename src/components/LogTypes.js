@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { observer, inject } from "mobx-react";
-import keyBy from "lodash/keyBy";
+import ColorHash from "color-hash";
+const colorHash = new ColorHash();
 
 const RowTypes = styled.div`
   flex: 1;
@@ -15,9 +16,13 @@ const TypeGroup = styled.div`
   font-weight: 500;
   padding: 8px;
   cursor: pointer;
-  color: ${props => (props.selected ? "#444444" : "rgba(0, 0, 0, .27)")};
+  color: #444444;
+  background-color: ${props => {
+    return props.selected ? colorHash.hex(props.type) : null;
+  }}
+  color: ${props => (props.selected ? "white" : "#444444")};
   &:hover {
-    background-color: #ebebeb;
+    background-color: ${props => (props.selected ? null : "#ebebeb")};
   }
 `;
 
@@ -33,18 +38,7 @@ const TypeSelector = inject("store")(
         };
       };
 
-      turnAllOffExcept = except => {
-        const { store } = this.props;
-        const { types } = store;
-        const keyed = keyBy(types);
-        Object.keys(keyed).forEach(k => {
-          keyed[k] = k === except ? true : false;
-        });
-        store.selectedGroups = keyed;
-      };
-
-      isSelected = (selectedGroups, key) =>
-        typeof selectedGroups[key] === "boolean" ? selectedGroups[key] : true;
+      isSelected = (selectedGroups, key) => selectedGroups[key];
 
       render() {
         const { store } = this.props;
@@ -57,14 +51,10 @@ const TypeSelector = inject("store")(
               const selected = this.isSelected(selectedGroups, header);
               return (
                 <TypeGroup
+                  type={header}
                   selected={selected}
                   key={header}
                   onClick={() => this.toggleSelection(header)}
-                  onContextMenu={e => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.turnAllOffExcept(header);
-                  }}
                 >
                   {header}
                 </TypeGroup>

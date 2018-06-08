@@ -129,16 +129,11 @@ class UI {
 
   get filteredLog() {
     const searchTerm = this.searchTerm;
-    const selectedGroups = this.selectedGroups;
     this.actionDimension.filter(type => {
       if (searchTerm !== "") {
         return type.toLowerCase().includes(searchTerm.toLowerCase());
-      } else {
-        const baseType = type.split("+")[1];
-        return typeof selectedGroups[baseType] === "boolean"
-          ? selectedGroups[baseType]
-          : true;
       }
+      return true;
     });
     const timeValue = this.timeValue;
     this.timeDimension.filter(time => {

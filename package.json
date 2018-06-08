@@ -5,6 +5,7 @@
   "dependencies": {
     "@nivo/line": "^0.40.0",
     "chart.js": "^1.1.1",
+    "color-hash": "^1.0.3",
     "crossfilter2": "^1.4.6",
     "gh-pages": "^1.1.0",
     "lodash": "4.17.10",
