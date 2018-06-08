@@ -19,7 +19,7 @@ worker.postMessage({ type: "helloworld" });
 
 const styles = {
   overflow: "hidden",
-  height: "100vh",
+  height: "calc(100vh - 32px)",
   display: "flex"
 };
 
@@ -35,7 +35,6 @@ const SectionHeader = styled.div`
 `;
 
 const FullHeightPanel = styled.div`
-  height: 100vh;
   display: flex;
   flex-direction: column;
   width: ${props => props.width}px;
@@ -87,32 +86,60 @@ const App = inject("store")(
     class Main extends React.Component {
       render() {
         const { store } = this.props;
-        const { searchTerm, file } = store;
+        const { searchTerm, file, timeBounds } = store;
+        const { min, max } = timeBounds;
         return (
-          <div style={styles}>
-            <Helmet>
-              <title>Log Viewer {file.name}</title>
-            </Helmet>
-            <FullHeightPanel width={memGraphWidth}>
-              <SectionHeader>
-                <Text type="meta">Log Types</Text>
-              </SectionHeader>
-              <SectionHeader>
-                <Input
-                  style={{ paddingRight: 8 }}
-                  value={searchTerm}
-                  placeholder="Search Logs by Type..."
-                  onChange={e => (store.searchTerm = e.target.value)}
-                />
-              </SectionHeader>
-              <LogTypes />
-              <MemoryGraph />
-            </FullHeightPanel>
-            <FullHeightPanel style={{ flex: 1 }}>
-              <FileSelector />
-              <LogList />
-            </FullHeightPanel>
-            <ObjectInspector />
+          <div
+            style={{
+              display: "flex",
+              height: "100vh",
+              flexDirection: "column"
+            }}
+          >
+            <div style={styles}>
+              <Helmet>
+                <title>Log Viewer {file.name}</title>
+              </Helmet>
+              <FullHeightPanel width={memGraphWidth}>
+                <SectionHeader>
+                  <Text type="meta">Log Types</Text>
+                </SectionHeader>
+                <SectionHeader>
+                  <Input
+                    style={{ paddingRight: 8 }}
+                    value={searchTerm}
+                    placeholder="Search Logs by Type..."
+                    onChange={e => (store.searchTerm = e.target.value)}
+                  />
+                </SectionHeader>
+                <LogTypes />
+                <MemoryGraph />
+              </FullHeightPanel>
+              <FullHeightPanel style={{ flex: 1 }}>
+                <FileSelector />
+                <LogList />
+              </FullHeightPanel>
+              <ObjectInspector />
+            </div>
+            <div
+              style={{
+                borderTop: "1px solid #ebebeb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 32
+              }}
+            >
+              <input
+                type="range"
+                min={min - 20}
+                max={max}
+                value={store.timeValue}
+                onChange={e => (store.timeValue = parseInt(e.target.value, 10))}
+                step={1}
+                style={{ width: "95vw" }}
+              />
+            </div>
           </div>
         );
       }

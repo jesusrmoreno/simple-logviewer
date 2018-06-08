@@ -56,11 +56,9 @@ class UI {
     name: ""
   };
   selectedRow = {};
-  selectedGroups = {
-    ajax: false,
-    time: false
-  };
+  selectedGroups = {};
   parsing = false;
+  timeValue = 0;
 
   get parsedLog() {
     return parseText(this.text);
@@ -72,7 +70,7 @@ class UI {
   }
 
   get memoryLogs() {
-    const log = this.parsedLog.log;
+    const log = this.filteredLog;
     return log.filter(l => getRowType(l) === "memory").map(l => ({
       ...l.data,
       time: createMoment(l.time),
@@ -84,8 +82,32 @@ class UI {
     }));
   }
 
+  get timeBounds() {
+    const log = this.parsedLog.log;
+    const first = log[0];
+    const last = log[log.length - 1];
+
+    const min = first
+      ? createMoment(first.time ? first.time : first.startTime).unix()
+      : 0;
+    const max = last
+      ? createMoment(last.time ? last.time : last.startTime).unix()
+      : 10;
+    return {
+      min,
+      max
+    };
+  }
+
   get crossfilter() {
     return crossfilter(this.parsedLog.log);
+  }
+
+  get timeDimension() {
+    return this.crossfilter.dimension(
+      l =>
+        l.time ? createMoment(l.time).unix() : createMoment(l.startTime).unix()
+    );
   }
 
   get actionDimension() {
@@ -101,7 +123,6 @@ class UI {
   }
 
   get types() {
-    console.log('sdfasdf')
     const log = this.filteredLog;
     return groupBy(uniq(log.map(getRowType)), type => type);
   }
@@ -118,6 +139,10 @@ class UI {
           ? selectedGroups[baseType]
           : true;
       }
+    });
+    const timeValue = this.timeValue;
+    this.timeDimension.filter(time => {
+      return timeValue < time;
     });
 
     return this.actionDimension.bottom(Infinity);
@@ -136,7 +161,10 @@ const UIStore = decorate(UI, {
   crossfilter: computed,
   actionDimension: computed,
   parsing: observable,
-  types: computed
+  types: computed,
+  timeDimension: computed,
+  timeBounds: computed,
+  timeValue: observable
 });
 
 export default new UIStore();

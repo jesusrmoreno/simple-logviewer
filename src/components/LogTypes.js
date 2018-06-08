@@ -35,7 +35,6 @@ const TypeSelector = inject("store")(
 
       turnAllOffExcept = except => {
         const { store } = this.props;
-        const { parsedLog } = store;
         const { types } = store;
         const keyed = keyBy(types);
         Object.keys(keyed).forEach(k => {
@@ -49,7 +48,6 @@ const TypeSelector = inject("store")(
 
       render() {
         const { store } = this.props;
-        const { parsedLog } = store;
         const { types } = store;
         const { selectedGroups } = store;
         const headers = Object.keys(types).sort();

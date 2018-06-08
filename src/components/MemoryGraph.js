@@ -1,9 +1,11 @@
 import React, { Fragment } from "react";
-import { Line } from "@nivo/line";
 import _ from "lodash";
 import styled from "styled-components";
 import Text from "./Typography";
 import { inject, observer } from "mobx-react";
+import LineChart from "react-linechart";
+import "../../node_modules/react-linechart/dist/styles.css";
+
 const memGraphHeight = 200;
 export const memGraphWidth = 400;
 
@@ -18,11 +20,54 @@ const SectionHeader = styled.div`
   padding-left: 8px;
 `;
 
+const GraphContainer = styled.div`
+  position: relative;
+`;
+
+class MemGraph extends React.Component {
+  shouldComponentUpdate(nextProps) {
+    return nextProps.memoryLogs.length !== this.props.memoryLogs.length;
+  }
+  render() {
+    const { memoryLogs, minY, maxY, minX, maxX } = this.props;
+    return (
+      <LineChart
+        width={memGraphWidth}
+        height={memGraphHeight}
+        hideXLabel
+        hideYLabel
+        hideYAxis
+        hideXAxis
+        hidePoints
+        yMin={minY}
+        yMax={maxY}
+        xMin={minX}
+        xMax={maxX}
+        margins={{
+          // Passing in zero means that it'll apply the default value...
+          top: 8,
+          left: 1,
+          right: 1,
+          bottom: 8
+        }}
+        data={[
+          {
+            color: "#1a80fb",
+            points: memoryLogs.map(l => ({ x: l.x, y: l.y }))
+          }
+        ]}
+      />
+    );
+  }
+}
+
 const MemoryGraph = inject("store")(
   observer(({ store }) => {
     const memoryLogs = store.memoryLogs;
     const maxY = (_.maxBy(memoryLogs, m => m.y) || { y: 10 }).y;
     const minY = (_.minBy(memoryLogs, m => m.y) || { y: 0 }).y;
+    const maxX = (_.maxBy(memoryLogs, m => m.x) || { x: 10 }).x;
+    const minX = (_.minBy(memoryLogs, m => m.x) || { x: 10 }).x;
 
     return (
       <Fragment>
@@ -31,30 +76,15 @@ const MemoryGraph = inject("store")(
             Memory Usage: totalJSHeapSize / jsHeapSizeLimit
           </Text>
         </SectionHeader>
-        <Line
-          data={[
-            {
-              id: "totalJSHeapSize/jsHeapSizeLimit",
-              data: memoryLogs
-            }
-          ]}
-          animate={false}
-          minY={minY - 5}
-          maxY={maxY + 5}
-          height={memGraphHeight}
-          width={memGraphWidth}
-          enableGridX={false}
-          enableGridY={false}
-          curve="natural"
-          enableDots={false}
-          enableStackTooltip={false}
-          margin={{
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0
-          }}
-        />
+        <GraphContainer>
+          <MemGraph
+            memoryLogs={memoryLogs}
+            maxY={maxY}
+            minY={minY}
+            maxX={maxX}
+            minX={minX}
+          />
+        </GraphContainer>
       </Fragment>
     );
   })

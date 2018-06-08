@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import { observer, inject } from "mobx-react";
-import worker from "../util/worker";
 
 const FileUpload = styled.button`
   border: 0;
@@ -37,9 +36,6 @@ const ConnectedFileSelector = inject("store")(
       constructor(props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
-      }
-      componentDidMount() {
-        worker.onmessage;
       }
       handleChange = e => {
         if (e.target.files.length) {
