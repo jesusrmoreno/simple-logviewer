@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { observer, inject } from "mobx-react";
+
 import ColorHash from "color-hash";
 const colorHash = new ColorHash();
 
@@ -14,9 +15,11 @@ const TypeGroup = styled.div`
   height: 32;
   font-size: 0.8rem;
   font-weight: 500;
-  padding: 8px;
   cursor: pointer;
   color: #444444;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
   background-color: ${props => {
     return props.selected ? colorHash.hex(props.type) : null;
   }}
@@ -25,6 +28,52 @@ const TypeGroup = styled.div`
     background-color: ${props => (props.selected ? null : "#ebebeb")};
   }
 `;
+
+const CBWrapper = styled.div`
+  display: flex;
+  height: 32px;
+  width: 32px;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.27);
+  }
+`;
+
+const Checkbox = inject("store")(
+  observer(({ store, type }) => {
+    const { shownGroups } = store;
+    const checked =
+      typeof shownGroups[type] === "boolean" ? shownGroups[type] : true;
+
+    // console.log(shownGroups);
+    return (
+      <CBWrapper
+        onClick={e => {
+          e.preventDefault();
+          e.stopPropagation();
+          store.shownGroupsIsDirty = true;
+          store.shownGroups = {
+            ...shownGroups,
+            [type]: !checked
+          };
+        }}
+      >
+        {checked && (
+          <div
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: 2,
+              backgroundColor: "rgba(0, 0, 0, 0.27)"
+            }}
+          />
+        )}
+      </CBWrapper>
+    );
+  })
+);
 
 const TypeSelector = inject("store")(
   observer(
@@ -56,7 +105,10 @@ const TypeSelector = inject("store")(
                   key={header}
                   onClick={() => this.toggleSelection(header)}
                 >
-                  {header}
+                  <Checkbox type={header} />
+                  <div style={{ paddingLeft: 2, maxWidth: 400 - 32 }}>
+                    {header}
+                  </div>
                 </TypeGroup>
               );
             })}

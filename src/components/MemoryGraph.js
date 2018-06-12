@@ -29,7 +29,7 @@ class MemGraph extends React.Component {
     return nextProps.memoryLogs.length !== this.props.memoryLogs.length;
   }
   render() {
-    const { memoryLogs, minY, maxY, minX, maxX } = this.props;
+    const { memoryLogs, minY, maxY, minX, maxX, onPointClick } = this.props;
     return (
       <LineChart
         width={memGraphWidth}
@@ -38,7 +38,8 @@ class MemGraph extends React.Component {
         hideYLabel
         hideYAxis
         hideXAxis
-        hidePoints
+        pointRadius={3}
+        onPointClick={(e, p) => onPointClick(p.x)}
         yMin={minY}
         yMax={maxY}
         xMin={minX}
@@ -78,6 +79,7 @@ const MemoryGraph = inject("store")(
         </SectionHeader>
         <GraphContainer>
           <MemGraph
+            onPointClick={value => (store.timeValue = value)}
             memoryLogs={memoryLogs}
             maxY={maxY}
             minY={minY}

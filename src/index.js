@@ -14,6 +14,8 @@ import { Provider, inject, observer } from "mobx-react";
 import appState from "./store";
 import { Helmet } from "react-helmet";
 import worker from "./util/worker";
+import { toJS } from "mobx";
+import every from "lodash/every";
 
 worker.postMessage({ type: "helloworld" });
 
@@ -102,15 +104,15 @@ const App = inject("store")(
               </Helmet>
               <FullHeightPanel width={memGraphWidth}>
                 <SectionHeader>
-                  <Text type="meta">Log Types</Text>
-                </SectionHeader>
-                <SectionHeader>
                   <Input
                     style={{ paddingRight: 8 }}
                     value={searchTerm}
                     placeholder="Search Logs by Type..."
                     onChange={e => (store.searchTerm = e.target.value)}
                   />
+                </SectionHeader>
+                <SectionHeader>
+                  <Text type="meta">Log Types</Text>
                 </SectionHeader>
                 <LogTypes />
                 <MemoryGraph />

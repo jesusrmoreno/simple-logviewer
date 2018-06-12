@@ -45,7 +45,6 @@ const ConnectedFileSelector = inject("store")(
           this.props.store.parsing = true;
           reader.readAsText(file);
           reader.onload = () => {
-            // worker.postMessage({ type: "parseText", payload: reader.result });
             this.props.store.text = reader.result;
             this.props.store.parsing = false;
           };

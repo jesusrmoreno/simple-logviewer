@@ -18,7 +18,6 @@ const Row = styled.div`
       return "#1a80fb";
     }
     if (props.selectedFromGroup) {
-      console.log(colorHash);
       return colorHash.hex(props.type);
     }
   }};

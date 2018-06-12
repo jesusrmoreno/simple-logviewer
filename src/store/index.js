@@ -59,6 +59,8 @@ class UI {
   selectedGroups = {};
   parsing = false;
   timeValue = 0;
+  shownGroups = {};
+  shownGroupsIsDirty = false;
 
   get parsedLog() {
     return parseText(this.text);
@@ -74,9 +76,7 @@ class UI {
     return log.filter(l => getRowType(l) === "memory").map(l => ({
       ...l.data,
       time: createMoment(l.time),
-      x: createMoment(l.time)
-        .unix()
-        .toString(),
+      x: createMoment(l.time).unix(),
       y: Math.floor((l.data.totalJSHeapSize / l.data.jsHeapSizeLimit) * 100),
       id: l.id.toString()
     }));
@@ -123,22 +123,25 @@ class UI {
   }
 
   get types() {
-    const log = this.filteredLog;
+    const log = this.parsedLog.log;
     return groupBy(uniq(log.map(getRowType)), type => type);
   }
 
   get filteredLog() {
     const searchTerm = this.searchTerm;
+    const shownGroups = this.shownGroups;
     this.actionDimension.filter(type => {
       if (searchTerm !== "") {
         return type.toLowerCase().includes(searchTerm.toLowerCase());
+      } else {
+        const strippedType = type.split("+")[1];
+        return typeof shownGroups[strippedType] === "boolean"
+          ? shownGroups[strippedType]
+          : true;
       }
-      return true;
     });
     const timeValue = this.timeValue;
-    this.timeDimension.filter(time => {
-      return timeValue < time;
-    });
+    this.timeDimension.filter(time => timeValue <= time);
 
     return this.actionDimension.bottom(Infinity);
   }
@@ -159,7 +162,9 @@ const UIStore = decorate(UI, {
   types: computed,
   timeDimension: computed,
   timeBounds: computed,
-  timeValue: observable
+  timeValue: observable,
+  shownGroups: observable,
+  shownGroupsIsDirty: observable
 });
 
 export default new UIStore();
