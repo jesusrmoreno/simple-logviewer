@@ -1,7 +1,7 @@
 import moment from "moment";
 
 function createMoment(time) {
-  return moment(time.replace("@d@ ", "").replace("Z #d#", ""));
+  return moment.utc(time.replace("@d@ ", "").replace("Z #d#", "")).local();
 }
 
 const getRowType = row => {

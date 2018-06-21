@@ -1,15 +1,16 @@
 import { decorate, observable, computed, toJS } from "mobx";
-import _ from "lodash";
 import { getRowType, createMoment } from "../util";
 import crossfilter from "crossfilter2";
 import groupBy from "lodash/groupBy";
 import uniq from "lodash/uniq";
 
+const getTimeString = d => (d.time ? d.time : d.startTime);
+
 const parseText = text => {
   try {
     const rawLog = JSON.parse(text) || {};
     const log = rawLog.log || [];
-    const types = _.groupBy(_.uniq(log.map(getRowType)), type => type);
+    const types = groupBy(uniq(log.map(getRowType)), type => type);
     const {
       cabSessionID,
       cabLoginID,
@@ -62,6 +63,20 @@ class UI {
   shownGroups = {};
   shownGroupsIsDirty = false;
 
+  reset = () => {
+    this.searchTerm = "";
+    this.text = "";
+    this.file = {
+      name: ""
+    };
+    this.selectedRow = {};
+    this.selectedGroups = {};
+    this.parsing = false;
+    this.timeValue = 0;
+    this.shownGroups = {};
+    this.shownGroupsIsDirty = false;
+  };
+
   get parsedLog() {
     return parseText(this.text);
   }
@@ -73,13 +88,17 @@ class UI {
 
   get memoryLogs() {
     const log = this.filteredLog;
-    return log.filter(l => getRowType(l) === "memory").map(l => ({
-      ...l.data,
-      time: createMoment(l.time),
-      x: createMoment(l.time).unix(),
-      y: Math.floor((l.data.totalJSHeapSize / l.data.jsHeapSizeLimit) * 100),
-      id: l.id.toString()
-    }));
+    return log.filter(l => getRowType(l) === "memory").map(l => {
+      const time = createMoment(getTimeString(l));
+      return {
+        ...l.data,
+        time,
+        x: time.unix(),
+        y: l.data.totalJSHeapSize,
+        max: l.data.jsHeapSizeLimit,
+        id: l.id.toString()
+      };
+    });
   }
 
   get timeBounds() {
@@ -87,12 +106,8 @@ class UI {
     const first = log[0];
     const last = log[log.length - 1];
 
-    const min = first
-      ? createMoment(first.time ? first.time : first.startTime).unix()
-      : 0;
-    const max = last
-      ? createMoment(last.time ? last.time : last.startTime).unix()
-      : 10;
+    const min = first ? createMoment(getTimeString(first)).unix() : 0;
+    const max = last ? createMoment(getTimeString(last)).unix() : 10;
     return {
       min,
       max
@@ -104,9 +119,8 @@ class UI {
   }
 
   get timeDimension() {
-    return this.crossfilter.dimension(
-      l =>
-        l.time ? createMoment(l.time).unix() : createMoment(l.startTime).unix()
+    return this.crossfilter.dimension(l =>
+      createMoment(getTimeString(l)).unix()
     );
   }
 
@@ -116,7 +130,7 @@ class UI {
       // mad slow.
       // Luckily crossfilter sorts in natural order by key (in this case type)
       // so we can just prefix the type with the unix timestamp
-      const timestamp = createMoment(l.time ? l.time : l.startTime).unix();
+      const timestamp = createMoment(getTimeString(l)).unix();
       const type = `${timestamp}+${l.action ? l.action.type : getRowType(l)}`;
       return type;
     });

@@ -44,6 +44,7 @@ class MemGraph extends React.Component {
         yMax={maxY}
         xMin={minX}
         xMax={maxX}
+        onPointHover={({ x, y }) => y}
         margins={{
           // Passing in zero means that it'll apply the default value...
           top: 8,
@@ -69,7 +70,7 @@ const MemoryGraph = inject("store")(
     const minY = (_.minBy(memoryLogs, m => m.y) || { y: 0 }).y;
     const maxX = (_.maxBy(memoryLogs, m => m.x) || { x: 10 }).x;
     const minX = (_.minBy(memoryLogs, m => m.x) || { x: 10 }).x;
-
+    console.log(maxY);
     return (
       <Fragment>
         <SectionHeader>

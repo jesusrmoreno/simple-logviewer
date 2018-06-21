@@ -116,6 +116,7 @@ const App = inject("store")(
                 </SectionHeader>
                 <LogTypes />
                 <MemoryGraph />
+                
               </FullHeightPanel>
               <FullHeightPanel style={{ flex: 1 }}>
                 <FileSelector />
@@ -124,24 +125,26 @@ const App = inject("store")(
               <ObjectInspector />
             </div>
             <div
-              style={{
-                borderTop: "1px solid #ebebeb",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                height: 32
-              }}
-            >
-              <input
-                type="range"
-                min={min - 20}
-                max={max}
-                value={store.timeValue}
-                onChange={e => (store.timeValue = parseInt(e.target.value, 10))}
-                step={1}
-                style={{ width: "95vw" }}
-              />
-            </div>
+                  style={{
+                    borderTop: "1px solid #ebebeb",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: 32
+                  }}
+                >
+                  <input
+                    type="range"
+                    min={min - 20}
+                    max={max}
+                    value={store.timeValue}
+                    onChange={e =>
+                      (store.timeValue = parseInt(e.target.value, 10))
+                    }
+                    step={1}
+                    style={{ width: "95vw" }}
+                  />
+                </div>
           </div>
         );
       }

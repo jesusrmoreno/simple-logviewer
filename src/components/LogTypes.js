@@ -36,9 +36,9 @@ const CBWrapper = styled.div`
   align-items: center;
   justify-content: center;
 
-  &:hover {
+  /* &:hover {
     background-color: rgba(0, 0, 0, 0.27);
-  }
+  } */
 `;
 
 const Checkbox = inject("store")(
@@ -47,7 +47,6 @@ const Checkbox = inject("store")(
     const checked =
       typeof shownGroups[type] === "boolean" ? shownGroups[type] : true;
 
-    // console.log(shownGroups);
     return (
       <CBWrapper
         onClick={e => {
@@ -60,16 +59,15 @@ const Checkbox = inject("store")(
           };
         }}
       >
-        {checked && (
-          <div
-            style={{
-              width: 12,
-              height: 12,
-              borderRadius: 2,
-              backgroundColor: "rgba(0, 0, 0, 0.27)"
-            }}
-          />
-        )}
+        <div
+          style={{
+            border: "1px solid rgba(0, 0, 0, 0.27)",
+            width: 12,
+            height: 12,
+            borderRadius: 2,
+            backgroundColor: checked ? "rgba(0, 0, 0, 0.27)" : null
+          }}
+        />
       </CBWrapper>
     );
   })

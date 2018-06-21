@@ -41,6 +41,7 @@ const ConnectedFileSelector = inject("store")(
         if (e.target.files.length) {
           const reader = new FileReader();
           const file = e.target.files[0];
+          this.props.store.reset();
           this.props.store.file = file;
           this.props.store.parsing = true;
           reader.readAsText(file);
